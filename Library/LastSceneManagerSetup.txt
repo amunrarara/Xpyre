@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/SampleScene.unity
+- path: Assets/Scenes/Scenes_Testing/Test_TurningGears.unity
   isLoaded: 1
   isActive: 1
