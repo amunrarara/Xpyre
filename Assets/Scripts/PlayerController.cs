@@ -25,6 +25,8 @@ namespace Xpyre
 
         protected float m_DesiredForwardSpeed;         // How fast Ellen aims be going along the ground based on input.
         protected float m_ForwardSpeed;                // How fast Ellen is currently going along the ground.
+        protected float m_DesiredSideSpeed;
+        protected float m_SideSpeed;
         protected CharacterController m_CharCtrl;
 
 
@@ -75,17 +77,19 @@ namespace Xpyre
         void FixedUpdate()
         {
             Vector3 movement;
+            Vector3 FlatCameraDirection;
+            //float moveHorizontal = Input.GetAxis("Horizontal");
+            //float moveVertical = Input.GetAxis("Vertical");
 
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            float moveVertical = Input.GetAxis("Vertical");
-
-            movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+            //movement = new Vector3(moveHorizontal, 0.0f, moveVertical);/
 
             CalculateForwardMovement();
+            CalculateSideMovement();
 
             SetTargetRotation();
 
-            movement = m_ForwardSpeed * Camera.main.transform.forward * Time.deltaTime;
+            FlatCameraDirection = new Vector3 (Camera.main.transform.forward.x, 0f, Camera.main.transform.forward.z);
+            movement = ((m_ForwardSpeed * FlatCameraDirection) + (m_SideSpeed * Camera.main.transform.right)) * Time.deltaTime;
 
             // Move the character controller.
             m_CharCtrl.Move(movement);
@@ -98,15 +102,34 @@ namespace Xpyre
             transform.rotation = m_TargetRotation;
         }
 
+        void CalculateSideMovement()
+        {
+            // Cache the move input and cap it's magnitude at 1.
+            float moveInput = m_Input.MoveInput.x;
+            if (moveInput > 1f)
+                moveInput = 1f;
+
+            // Calculate the speed intended by input.
+            // ALTER MAX MOVEMENT SPEED
+            m_DesiredSideSpeed = moveInput * maxForwardSpeed; 
+
+            // Determine change to speed based on whether there is currently any move input.
+            float acceleration = IsMoveInput ? k_GroundAcceleration : k_GroundDeceleration;
+
+            // Adjust the forward speed towards the desired speed.
+            m_SideSpeed = Mathf.MoveTowards(m_SideSpeed, m_DesiredSideSpeed, acceleration * Time.deltaTime);
+
+        }
+
         void CalculateForwardMovement()
         {
             // Cache the move input and cap it's magnitude at 1.
-            Vector2 moveInput = m_Input.MoveInput;
-            if (moveInput.sqrMagnitude > 1f)
-                moveInput.Normalize();
+            float moveInput = m_Input.MoveInput.y;
+            if (moveInput > 1f)
+                moveInput = 1f;
 
             // Calculate the speed intended by input.
-            m_DesiredForwardSpeed = moveInput.magnitude * maxForwardSpeed;
+            m_DesiredForwardSpeed = moveInput * maxForwardSpeed;
 
             // Determine change to speed based on whether there is currently any move input.
             float acceleration = IsMoveInput ? k_GroundAcceleration : k_GroundDeceleration;
