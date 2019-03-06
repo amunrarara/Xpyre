@@ -7,23 +7,39 @@ public class Gear_PossessionObject : PossessionObject
 
     public float turnSpeed = 50f;
     public float ToothCount;
+    public bool isPossessed;
 
-    public Gear_PossessionObject[] children;
+    public List<GameObject> children = new List<GameObject>();
 
     private bool parented = false;
 
+    public Material m_red;
+    public Material m_blue;
+    public Material m_green;
+    public Material m_grey;
+
+
+    private void Awake()
+    {
+        children.Clear();
+    }
 
     private void Start()
     {
-        for (int i = 0; i < children.Length; i++)
+        foreach (GameObject child in children)
         {
-            children[i].parented = true;
+            child.GetComponent<Gear_PossessionObject>().parented = true;
         }
     }
 
     private void Update()
     {
         if (parented)
+        {
+            return;
+        }
+
+        if (!isPossessed)
         {
             return;
         }
@@ -41,10 +57,14 @@ public class Gear_PossessionObject : PossessionObject
 
         transform.Rotate(transform.up, rotation, Space.World);
 
-        for (int i = 0; i < children.Length; i++)
+        if (children.Count >= 1)
         {
-            children[i].Rotate(-rotation * ToothCount);
+            foreach (GameObject child in children)
+            {
+                child.GetComponent<Gear_PossessionObject>().Rotate(-rotation * ToothCount);
+            }
         }
+    
     }
  
             
@@ -54,9 +74,40 @@ public class Gear_PossessionObject : PossessionObject
         rotation /= ToothCount;
         transform.Rotate(transform.up * rotation);
 
-        for (int i = 0; i < children.Length; i++)
+        foreach (GameObject child in children)
         {
-            children[i].Rotate(-rotation * ToothCount);
+            child.GetComponent<Gear_PossessionObject>().Rotate(-rotation * ToothCount);
+
+        }
+    }
+
+    public void OnTriggerEnter (Collider other)
+    {
+        if (other.CompareTag("Gear") && !other.gameObject.GetComponent<Gear_PossessionObject>().isPossessed)
+            {
+
+            // Add touching gear as a child in the list
+            children.Add(other.gameObject);
+                other.gameObject.GetComponent<Gear_PossessionObject>().parented = true;
+                // Set color to red             
+                other.GetComponentInChildren<MeshRenderer>().material = m_red;
+            }
+    }
+
+    private void OnTriggerStay (Collider other)
+    {
+
+    }
+
+    private void OnTriggerExit (Collider other)
+    {
+        if (other.CompareTag("Gear") && !other.gameObject.GetComponent<Gear_PossessionObject>().isPossessed)
+        {
+            other.gameObject.GetComponent<Gear_PossessionObject>().parented = false;
+            // Set color to red             
+            other.GetComponentInChildren<MeshRenderer>().material = m_grey;
+
+            children.Remove(other.gameObject);
 
         }
     }
