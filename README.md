@@ -5,7 +5,8 @@
 Here are the steps we are going to complete in the days to come:
 
 1) Main Character
-- Navigation
+- Navigation / PlayerMovement
+- Reference: https://unity3d.com/learn/tutorials/projects/survival-shooter/player-character
 
 2) Controlling Objects
 - Camera Centering
