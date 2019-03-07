@@ -5,25 +5,52 @@ using UnityEditor;
 public class Player_Movement : MonoBehaviour
 {
 
-    public float speed;
+    public float speed = 6f;
 
-    private Rigidbody rb;
+    Vector3 movement;
+    Animator anim;
+    Rigidbody playerRigidbody;
+    int floorMask;
+    float camRayLength = 100f;
 
-
-    void Start()
+    private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        floorMask = LayerMask.GetMask("Floor");
+        anim = GetComponent<Animator>();
+        playerRigidbody = GetComponent<Rigidbody>();
     }
 
-    //void FixedUpdate()
-    //{
-    //    float moveHorizontal = Input.GetAxis("Horizontal");
-    //    float moveVertical = Input.GetAxis("Vertical");
+    private void FixedUpdate()
+    {
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
-    //    Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        Move(h, v);
+        //Turning();
+    }
 
-    //    rb.AddForce(movement * speed);
-    //}
+    void Move(float h, float v)
+    {
+        movement.Set(h, 0f, v);
+        movement = movement.normalized * speed * Time.deltaTime;
 
+        playerRigidbody.MovePosition(transform.position + movement);
+    }
+
+    void Turning()
+    {
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit floorHit;
+
+        if (Physics.Raycast(camRay, out floorHit, camRayLength, floorMask))
+        {
+            Vector3 playerToMouse = floorHit.point - transform.position;
+            playerToMouse.y = 0f;
+
+            Quaternion newRotation = Quaternion.LookRotation(playerToMouse);
+            playerRigidbody.MoveRotation(newRotation);
+        }
+    }
 
 }
