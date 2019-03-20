@@ -6,7 +6,7 @@ public class PlayerInput : MonoBehaviour
 {
     protected Vector2 m_Movement;
     protected Vector2 m_Camera;
-
+    protected float m_Jump;
 
 
     public Vector2 MoveInput
@@ -25,11 +25,20 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
+    public float JumpInput
+    {
+        get
+        {
+            return m_Jump;
+        }
+    }
+
 
 
     void Update()
     {
-        m_Movement.Set(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        m_Movement.Set(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         m_Camera.Set(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        m_Jump = Input.GetAxisRaw("Jump");
     }
 }

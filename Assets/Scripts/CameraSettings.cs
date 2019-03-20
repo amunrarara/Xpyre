@@ -45,15 +45,12 @@ namespace Xpyre
             if (controllerCameraTransform != null)
                 controllerCamera = controllerCameraTransform.GetComponent<CinemachineFreeLook>();
 
-            PlayerController playerController = FindObjectOfType<PlayerController>();
+            Player_Controller playerController = FindObjectOfType<Player_Controller>();
             if (playerController != null && playerController.name == "Ellen")
             {
                 follow = playerController.transform;
 
                 lookAt = follow.Find("HeadTarget");
-
-                if (playerController.cameraSettings == null)
-                    playerController.cameraSettings = this;
             }
         }
 
